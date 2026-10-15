@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import CampusScene from '../components/CampusScene'
 import { Badge, Card, SectionTitle } from '../components/Ui'
 import { colors } from '../theme'
 import type { ScreenProps, TabKey } from '../types'
+import { getDashboardOverview } from '../services/api'
 
 const services: { icon: keyof typeof Ionicons.glyphMap; label: string; color: string; bg: string; tab?: TabKey }[] = [
   { icon: 'cube-outline', label: '3D校园', color: colors.primary, bg: colors.primarySoft, tab: 'campus' },
@@ -15,6 +16,16 @@ const services: { icon: keyof typeof Ionicons.glyphMap; label: string; color: st
 
 export default function HomeScreen({ goTo, notify }: ScreenProps) {
   const [query, setQuery] = useState('')
+  const [taskProgress, setTaskProgress] = useState(68)
+  const [taskCount, setTaskCount] = useState(4)
+  const [backendOnline, setBackendOnline] = useState(false)
+  useEffect(() => {
+    getDashboardOverview().then(data => {
+      if (data.tasks.length) setTaskProgress(Math.round(data.tasks.reduce((sum, item) => sum + item.progress, 0) / data.tasks.length))
+      setTaskCount(data.tasks.length)
+      setBackendOnline(true)
+    }).catch(() => setBackendOnline(false))
+  }, [])
   const ask = (text = query) => {
     if (!text.trim()) return notify('先告诉AI你想去哪里或要办什么事')
     goTo('assistant')
@@ -46,8 +57,8 @@ export default function HomeScreen({ goTo, notify }: ScreenProps) {
       <View style={styles.body}>
         <Card style={styles.progressCard}>
           <View style={styles.progressIcon}><Ionicons name="checkbox" size={23} color={colors.violet} /></View>
-          <View style={{ flex: 1 }}><Text style={styles.cardTitle}>今日报到任务</Text><Text style={styles.cardSub}>还有 2 项待完成 · 预计 56 分钟</Text></View>
-          <View style={styles.progressText}><Text style={styles.progressNumber}>68%</Text><Text style={styles.progressLabel}>已完成</Text></View>
+          <View style={{ flex: 1 }}><Text style={styles.cardTitle}>今日报到任务</Text><Text style={styles.cardSub}>{taskCount} 个流程节点 · {backendOnline ? '已与管理端同步' : '离线演示数据'}</Text></View>
+          <View style={styles.progressText}><Text style={styles.progressNumber}>{taskProgress}%</Text><Text style={styles.progressLabel}>总体完成率</Text></View>
         </Card>
 
         <SectionTitle title="智能服务" action="全部服务  ›" onPress={() => notify('更多校园服务正在接入')} />

@@ -1,26 +1,31 @@
+import { useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Card, PageHeader, SectionTitle } from '../components/Ui'
 import { colors } from '../theme'
 import type { ScreenProps } from '../types'
+import { getTasks, type StudentTask } from '../services/api'
 
-const tasks = [
-  { state: 'done', title: '学院报到', detail: '身份验证与入学资料审核', time: '09:10 完成' },
-  { state: 'done', title: '新生信息确认', detail: '确认个人信息与紧急联系人', time: '09:28 完成' },
-  { state: 'active', title: '领取校园卡', detail: '综合服务中心 1 楼 · 需身份证', time: '预计 25 分钟' },
-  { state: 'pending', title: '宿舍入住登记', detail: '学生公寓 A 区 · 领取钥匙', time: '预计 35 分钟' },
-  { state: 'pending', title: '完成校医院体检', detail: '明日 08:00 后可办理', time: '明日' },
-] as const
+const fallbackTasks: StudentTask[] = [
+  { id: 1, name: '学院报到', description: '身份验证与入学资料审核', location: '综合楼 A201', status: 'ACTIVE', progress: 89, completedCount: 428, totalCount: 480, estimatedMinutes: 20, sortOrder: 1 },
+  { id: 2, name: '领取校园卡', description: '领取校园身份与消费卡', location: '综合服务中心 1 楼', status: 'ACTIVE', progress: 82, completedCount: 392, totalCount: 480, estimatedMinutes: 25, sortOrder: 2 },
+  { id: 3, name: '宿舍入住', description: '登记入住并领取钥匙', location: '学生公寓 A 区', status: 'ACTIVE', progress: 74, completedCount: 356, totalCount: 480, estimatedMinutes: 35, sortOrder: 3 },
+]
 
 export default function TasksScreen({ notify }: ScreenProps) {
+  const [tasks, setTasks] = useState<StudentTask[]>(fallbackTasks)
+  const [backendOnline, setBackendOnline] = useState(false)
+  useEffect(() => { getTasks().then(data => { setTasks(data); setBackendOnline(true) }).catch(() => setBackendOnline(false)) }, [])
+  const averageProgress = useMemo(() => tasks.length ? Math.round(tasks.reduce((sum,item) => sum + item.progress, 0) / tasks.length) : 0, [tasks])
+  const totalMinutes = useMemo(() => tasks.reduce((sum,item) => sum + item.estimatedMinutes, 0), [tasks])
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <PageHeader title="新生任务" subtitle="AI会根据时间、路况和前置条件动态调整" action={<TouchableOpacity style={styles.headerAction} onPress={() => notify('任务日历已打开')}><Ionicons name="calendar-outline" size={20} color={colors.primary} /></TouchableOpacity>} />
       <View style={styles.hero}>
-        <Text style={styles.heroTitle}>新生报到一日通</Text><Text style={styles.heroSub}>今天的顺序已按开放时间和路线优化</Text>
+        <Text style={styles.heroTitle}>新生报到一日通</Text><Text style={styles.heroSub}>{backendOnline ? '已同步管理端任务配置' : '当前使用离线任务配置'} · 预计 {totalMinutes} 分钟</Text>
         <View style={styles.progressRow}>
-          <View style={styles.ring}><Text style={styles.ringValue}>68%</Text><Text style={styles.ringLabel}>总进度</Text></View>
-          <View style={styles.stats}>{[['2', '已完成'], ['2', '今日待办'], ['1', '明日待办']].map(item => <View key={item[1]} style={styles.stat}><Text style={styles.statValue}>{item[0]}</Text><Text style={styles.statLabel}>{item[1]}</Text></View>)}</View>
+          <View style={styles.ring}><Text style={styles.ringValue}>{averageProgress}%</Text><Text style={styles.ringLabel}>总体进度</Text></View>
+          <View style={styles.stats}>{[[String(tasks.length), '流程节点'], [String(tasks.filter(item => item.status === 'ACTIVE').length), '运行中'], [String(tasks.filter(item => item.status !== 'ACTIVE').length), '已暂停']].map(item => <View key={item[1]} style={styles.stat}><Text style={styles.statValue}>{item[0]}</Text><Text style={styles.statLabel}>{item[1]}</Text></View>)}</View>
         </View>
       </View>
 
@@ -28,12 +33,12 @@ export default function TasksScreen({ notify }: ScreenProps) {
         <SectionTitle title="今日流程" action="✦ AI重新排序" onPress={() => notify('AI已检查，当前顺序为最优')} />
         <Card style={styles.timeline}>
           {tasks.map((item, index) => {
-            const done = item.state === 'done'; const active = item.state === 'active'
-            return <View key={item.title} style={styles.taskRow}>
+            const done = index === 0; const active = index === 1
+            return <View key={item.id} style={styles.taskRow}>
               {index < tasks.length - 1 ? <View style={[styles.line, done && styles.lineDone]} /> : null}
               <View style={[styles.taskIcon, done && styles.taskIconDone, active && styles.taskIconActive]}>{done ? <Ionicons name="checkmark" color="white" size={15} /> : <Text style={[styles.taskIndex, active && { color: 'white' }]}>{index + 1}</Text>}</View>
-              <View style={{ flex: 1 }}><Text style={[styles.taskTitle, item.state === 'pending' && { color: colors.text }]}>{item.title}</Text><Text style={styles.taskDetail}>{item.detail}</Text></View>
-              <Text style={[styles.taskTime, active && { color: colors.primary }]}>{item.time}</Text>
+              <View style={{ flex: 1 }}><Text style={styles.taskTitle}>{item.name}</Text><Text style={styles.taskDetail}>{item.location} · {item.description}</Text></View>
+              <Text style={[styles.taskTime, active && { color: colors.primary }]}>{done ? '已完成' : `预计 ${item.estimatedMinutes} 分钟`}</Text>
             </View>
           })}
         </Card>
