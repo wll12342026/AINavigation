@@ -31,29 +31,117 @@ student-mobile/          # Expo 学生手机端
 
 `prototype-static/` 保留迁移前的静态视觉原型，仅作对照，不是正式运行入口。
 
-## 开发运行
+## 手动启动（Windows）
+
+### 1. 首次运行准备
+
+请先安装以下软件：
+
+- Node.js 20 或更高版本
+- MySQL 8
+- JDK 21 或更高版本
+- Maven 3.9 或更高版本
+- 手机端预览需要在手机安装 Expo Go
+
+第一次下载项目后，在项目根目录安装依赖：
 
 ```powershell
+cd "C:\Users\31162\OneDrive\Desktop\wll\图书馆管理系统"
 npm install
-npm run dev
 ```
 
-访问 `http://127.0.0.1:5173/`。
+启动完整项目需要打开三个 PowerShell 窗口。三个窗口都不要关闭；需要停止服务时，在对应窗口按 `Ctrl + C`。
 
-## 后端与数据库
+### 2. 终端一：启动后端和数据库连接
 
-后端监听 `8088`，首次运行会自动创建 `freshman_campus_ai` 数据库、数据表与演示数据。数据库密码只通过环境变量传入，不提交到代码仓库。
+先确认本机 MySQL 服务已经启动，然后执行：
 
 ```powershell
+cd "C:\Users\31162\OneDrive\Desktop\wll\图书馆管理系统"
 $env:CAMPUS_DB_PASSWORD = "<你的本机 MySQL 密码>"
 npm run dev:server
 ```
 
-另开一个终端启动管理端：
+密码只在当前 PowerShell 窗口中临时生效，不要把真实密码写进代码或提交到 GitHub。
+
+后端监听 `8088` 端口。首次运行会自动创建 `freshman_campus_ai` 数据库、数据表和演示数据。出现 Spring Boot 启动完成信息后，可访问：
+
+```text
+http://127.0.0.1:8088/actuator/health
+```
+
+页面返回 `UP` 表示后端和数据库连接正常。
+
+### 3. 终端二：启动网页管理端
+
+新打开一个 PowerShell 窗口并执行：
 
 ```powershell
+cd "C:\Users\31162\OneDrive\Desktop\wll\图书馆管理系统"
 npm run dev
 ```
+
+本机浏览器访问：
+
+```text
+http://127.0.0.1:5173/
+```
+
+开发环境中的 `/api` 会自动转发到 `http://127.0.0.1:8088`，因此必须同时保持后端运行。
+
+### 4. 终端三：启动 Expo 手机端
+
+再打开一个 PowerShell 窗口并执行：
+
+```powershell
+cd "C:\Users\31162\OneDrive\Desktop\wll\图书馆管理系统"
+npm run dev:mobile
+```
+
+终端显示二维码后：
+
+- Android：使用 Expo Go 扫描二维码。
+- iPhone：电脑端 Expo CLI 与手机端 Expo Go 建议登录同一个 Expo 账号，再用系统相机或 Expo Go 扫码。
+- 手机和电脑应连接同一个 Wi-Fi，并允许 Windows 防火墙放行 Node.js、Java、5173、8081 和 8088 端口。
+
+如果局域网模式无法连接，可以改用隧道模式：
+
+```powershell
+npm run dev:mobile:tunnel
+```
+
+### 5. 同一 Wi-Fi 下用其他设备访问网页
+
+在电脑 PowerShell 中查看当前无线网卡的 IPv4 地址：
+
+```powershell
+ipconfig
+```
+
+例如电脑地址为 `192.168.1.20`，同一 Wi-Fi 下的手机或其他电脑访问：
+
+```text
+http://192.168.1.20:5173/
+```
+
+`127.0.0.1` 只代表当前设备，手机不能使用 `http://127.0.0.1:5173/` 访问电脑上的项目。更换 Wi-Fi 后，局域网 IPv4 地址可能变化，需要重新执行 `ipconfig` 查看。
+
+### 6. 推荐启动顺序
+
+1. 启动 MySQL。
+2. 启动后端，确认健康检查为 `UP`。
+3. 启动 Vue 网页管理端。
+4. 需要手机预览时，再启动 Expo。
+
+### 7. 常见问题
+
+- 网页能打开但没有数据：检查后端窗口是否仍在运行，并访问 `http://127.0.0.1:8088/actuator/health`。
+- 后端提示数据库连接失败：检查 MySQL 是否启动，以及 `CAMPUS_DB_PASSWORD` 是否为本机正确密码。
+- 手机打不开网页：确认手机和电脑处于同一 Wi-Fi，并检查 Windows 防火墙是否放行。
+- Expo 二维码无法连接：先关闭原 Expo 进程，再执行 `npm run dev:mobile:tunnel`。
+- 端口被占用：关闭之前启动的同类服务，或在其终端按 `Ctrl + C` 后重新启动。
+
+## 后端接口
 
 开发环境中的 `/api` 会自动代理到后端。常用接口包括：
 
@@ -91,7 +179,7 @@ npm run check:mobile
 npm run build:mobile
 ```
 
-`npm run dev:mobile` 启动后会显示二维码。手机端包含首页、3D校园、AI助手、新生任务和个人中心五个导航页面；网络受限时使用 tunnel 模式。
+`npm run dev:mobile` 启动后会显示二维码。手机端包含首页、3D校园、AI助手、新生任务和个人中心五个导航页面；网络受限时使用 tunnel 模式。完整启动方法见上方“手动启动（Windows）”。
 
 ## 已实现路由
 
