@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="新生智游——校园空间智能管理中心" />
+    <title>新生智游 · 校园空间智能管理中心</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><span></span>
+          </div>
+          <div>
+            <strong>新生智游</strong>
+            <small>校园空间智能管理中心</small>
+          </div>
+        </div>
+
+        <nav id="mainNav" class="main-nav" aria-label="主导航"></nav>
+
+        <div class="sidebar-foot">
+          <div class="pulse-dot"></div>
+          <div>
+            <strong>系统运行正常</strong>
+            <span>AI 服务与路网引擎已连接</span>
+          </div>
+        </div>
+        <div class="sidebar-grid" aria-hidden="true"></div>
+      </aside>
+
+      <main class="main-area">
+        <header class="topbar">
+          <div class="top-title">
+            <button class="mobile-menu" id="mobileMenu" aria-label="展开导航">☰</button>
+            <div>
+              <h1 id="pageTitle">校园空间智能管理中心</h1>
+              <p id="pageSubtitle">实时掌握空间、路网与新生任务运行状态</p>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="campus-switch" id="campusSwitch">
+              <span class="mini-building">▥</span>
+              <span>主校区</span>
+              <b>⌄</b>
+            </button>
+            <label class="global-search">
+              <span>⌕</span>
+              <input id="globalSearch" placeholder="搜索地点、建筑或任务…" />
+              <kbd>Ctrl K</kbd>
+            </label>
+            <button class="icon-btn notification" data-action="notify" aria-label="通知">
+              <span>♢</span><i></i>
+            </button>
+            <button class="profile" data-action="profile">
+              <span class="avatar">林</span>
+              <span><b>林管理员</b><small>超级管理员</small></span>
+              <em>⌄</em>
+            </button>
+          </div>
+        </header>
+
+        <section id="pageRoot" class="page-root" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+    <div id="modalRoot"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

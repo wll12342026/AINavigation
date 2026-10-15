@@ -1,0 +1,21 @@
+node_modules/
+dist/
+student-mobile/dist/
+student-mobile/.expo/
+*.tsbuildinfo
+
+# Generated previews and screenshots
+previews/
+student-mobile/previews/
+preview-*.png
+vue-admin-*.png
+admin-overview.png
+
+# Local editor and OS files
+.DS_Store
+Thumbs.db
+*.log
+server/target/
+server/data/
+.env
+.env.local

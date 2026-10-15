@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "新生智游",
+    "slug": "freshman-campus-ai",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.campus.freshmanai"
+    },
+    "android": {
+      "package": "com.campus.freshmanai",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": []
+  }
+}
