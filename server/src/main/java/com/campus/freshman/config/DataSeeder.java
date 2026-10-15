@@ -11,6 +11,7 @@ import com.campus.freshman.task.StudentTaskRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 @Configuration
 public class DataSeeder {
     @Bean
+    @ConditionalOnProperty(name = "campus.seed-demo-data", havingValue = "true")
     CommandLineRunner seed(PlaceRepository places, RoadSegmentRepository roads,
                            StudentTaskRepository tasks, KnowledgeItemRepository knowledge) {
         return args -> {
@@ -46,6 +48,7 @@ public class DataSeeder {
             place.setLatitude(39.9000 + i * 0.00005);
             place.setEntranceHint("建议从东侧主入口进入");
             place.setDescription("数字孪生语义地点，等待真实校园模型坐标校准");
+            place.markDemoData();
             data.add(place);
         }
         repository.saveAll(data);
@@ -63,6 +66,7 @@ public class DataSeeder {
             road.setStatus(i <= 90 ? "OPEN" : "RESTRICTED");
             road.setRestrictionReason(i <= 90 ? null : "临时施工");
             road.setAccessible(i % 17 != 0);
+            road.markDemoData();
             data.add(road);
         }
         repository.saveAll(data);
@@ -84,6 +88,7 @@ public class DataSeeder {
         task.setName(name); task.setDescription(description); task.setLocation(location); task.setStatus("ACTIVE");
         task.setProgress(progress); task.setCompletedCount(completed); task.setTotalCount(total);
         task.setEstimatedMinutes(minutes); task.setSortOrder(order);
+        task.markDemoData();
         return task;
     }
 
@@ -98,6 +103,7 @@ public class DataSeeder {
             item.setStatus(i <= 12 ? "PENDING" : "PUBLISHED");
             item.setSource("2026级新生入学指南");
             item.setExpiresAt(i <= 7 ? LocalDate.now().plusDays(i + 5L) : LocalDate.now().plusMonths(6));
+            item.markDemoData();
             data.add(item);
         }
         repository.saveAll(data);

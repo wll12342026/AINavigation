@@ -10,7 +10,7 @@ public class KnowledgeItemController {
     private final KnowledgeItemRepository repository;
     public KnowledgeItemController(KnowledgeItemRepository repository) { this.repository = repository; }
 
-    @GetMapping public List<KnowledgeItem> list() { return repository.findAllByOrderByUpdatedAtDesc(); }
+    @GetMapping public List<KnowledgeItem> list() { return repository.findAllByDemoDataFalseOrderByUpdatedAtDesc(); }
     @GetMapping("/{id}") public KnowledgeItem detail(@PathVariable Long id) { return find(id); }
     @PostMapping public KnowledgeItem create(@Valid @RequestBody KnowledgeItem item) { item.setId(null); return repository.save(item); }
     @PutMapping("/{id}") public KnowledgeItem update(@PathVariable Long id, @Valid @RequestBody KnowledgeItem input) {

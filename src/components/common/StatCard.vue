@@ -5,7 +5,7 @@ defineProps<{ label: string; value: string; icon: string; tone?: string; tint?: 
 <template>
   <article class="stat-card" :style="{ '--tone': tone || '#3478f5', '--tint': tint || '#ebf3ff' }">
     <div class="stat-icon stat-symbol">{{ icon }}</div>
-    <div class="stat-copy"><span>{{ label }}</span><strong>{{ value }}</strong><small>{{ caption || '较昨日数据已同步' }}</small></div>
+    <div class="stat-copy"><span>{{ label }}</span><strong>{{ value }}</strong><small v-if="caption">{{ caption }}</small></div>
     <div v-if="trend" class="stat-trend">{{ trend }}</div>
     <div class="stat-spark" aria-hidden="true"><i /><i /><i /><i /></div>
   </article>

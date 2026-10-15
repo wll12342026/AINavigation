@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Badge, Card, PrimaryButton } from '../components/Ui'
@@ -6,17 +6,13 @@ import { colors } from '../theme'
 import type { ScreenProps } from '../types'
 import { analyzeOperation } from '../services/api'
 
-const plan = [
-  { title: '学院报到', detail: '综合楼 A201 · 需录取通知书', time: '20分钟' },
-  { title: '领取校园卡', detail: '综合服务中心 1 楼', time: '25分钟' },
-  { title: '宿舍入住', detail: '学生公寓 A 区 · 领取钥匙', time: '35分钟' },
-]
-
 export default function AssistantScreen({ goTo, notify }: ScreenProps) {
   const [input, setInput] = useState('')
-  const [question, setQuestion] = useState('我刚到学校，想先报到、领校园卡，然后去宿舍')
-  const [answer, setAnswer] = useState('我已经理解你的目标。建议按“学院报到 → 校园卡 → 宿舍入住”的顺序办理，三个地点目前都在开放时间内。')
-  const [confidence, setConfidence] = useState(96)
+  const [question, setQuestion] = useState('')
+  const [answer, setAnswer] = useState('正在等待后端基于真实地点、路网、任务和知识库生成回答。')
+  const [confidence, setConfidence] = useState(0)
+  const [steps, setSteps] = useState<string[]>([])
+  const [objects, setObjects] = useState<string[]>([])
   const [online, setOnline] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -26,19 +22,19 @@ export default function AssistantScreen({ goTo, notify }: ScreenProps) {
       const result = await analyzeOperation(prompt)
       setAnswer(`${result.title}。${result.summary}`)
       setConfidence(Math.round(result.confidence * 100))
+      setSteps(result.reasoningSteps)
+      setObjects(result.affectedObjects)
       setOnline(true)
       if (showToast) notify('AI已根据后端路网和知识库完成分析')
     } catch {
       setOnline(false)
+      setAnswer('后端未连接，当前不显示本地演示答案。')
+      setConfidence(0); setSteps([]); setObjects([])
       if (showToast) notify('后端暂未连接，当前显示本地演示方案')
     } finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    void requestAnalysis(question, false)
-  }, [])
 
   const send = (value = input) => {
     if (!value.trim()) return
@@ -57,15 +53,14 @@ export default function AssistantScreen({ goTo, notify }: ScreenProps) {
       </View>
       <ScrollView style={styles.chat} contentContainerStyle={styles.chatContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.date}>今天 09:41</Text>
-        <View style={styles.userRow}><View style={styles.userBubble}><Text style={styles.userText}>{question}</Text></View></View>
+        {question ? <View style={styles.userRow}><View style={styles.userBubble}><Text style={styles.userText}>{question}</Text></View></View> : null}
         <View style={styles.aiRow}><View style={styles.chatAvatar}><Text style={styles.chatAvatarText}>AI</Text></View><View style={styles.aiBubble}><Text style={styles.aiText}>{loading ? '正在联合分析任务、路网与知识证据…' : answer}</Text></View></View>
         <Card style={styles.planCard}>
-          <View style={styles.planHead}><Text style={styles.planTitle}>AI生成的报到行程</Text><Badge tone="green">置信度 {confidence}%</Badge></View>
-          {plan.map((item, index) => <View key={item.title} style={styles.planStep}><View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View><View style={{ flex: 1 }}><Text style={styles.stepTitle}>{item.title}</Text><Text style={styles.stepDetail}>{item.detail}</Text></View><Text style={styles.stepTime}>{item.time}</Text></View>)}
-          <View style={styles.evidence}><Ionicons name="shield-checkmark-outline" size={15} color={colors.primary} /><Text style={styles.evidenceText}>依据：新生入学指南、实时开放时间、当前导航路网</Text></View>
-          <PrimaryButton label="查看3D任务路线" icon="map-outline" onPress={() => goTo('campus')} />
+          <View style={styles.planHead}><Text style={styles.planTitle}>数据库证据链</Text><Badge tone={online ? 'green' : 'orange'}>置信度 {confidence}%</Badge></View>
+          {!steps.length ? <Text style={styles.stepDetail}>暂无可核验步骤</Text> : steps.map((item, index) => <View key={`${item}-${index}`} style={styles.planStep}><View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View><View style={{ flex: 1 }}><Text style={styles.stepTitle}>{item}</Text><Text style={styles.stepDetail}>{objects[index] ?? '后端数据核验'}</Text></View></View>)}
+          <View style={styles.evidence}><Ionicons name="shield-checkmark-outline" size={15} color={colors.primary} /><Text style={styles.evidenceText}>{online ? '依据：当前 MySQL 地点、路网、任务和知识记录' : '后端离线，未使用预设答案'}</Text></View>
+          <PrimaryButton label="查看校园数据" icon="map-outline" onPress={() => goTo('campus')} />
         </Card>
-        <View style={styles.aiRow}><View style={styles.chatAvatar}><Text style={styles.chatAvatarText}>AI</Text></View><View style={styles.aiBubble}><Text style={styles.aiText}>请记得携带身份证和录取通知书。如果办事点排队或道路关闭，我会自动重新排序。</Text></View></View>
       </ScrollView>
       <View style={styles.composer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestions}>

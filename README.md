@@ -64,6 +64,14 @@ npm run dev:server
 
 密码只在当前 PowerShell 窗口中临时生效，不要把真实密码写进代码或提交到 GitHub。
 
+正常模式不会自动生成演示地点、道路、任务或知识。只有明确设置下面的变量时才会生成演示数据：
+
+```powershell
+$env:CAMPUS_SEED_DEMO_DATA = "true"
+```
+
+旧版本已经生成的数据不会被直接删除。新版后端会识别并标记这些历史演示记录，正常业务接口和首页统计默认排除它们；管理首页会显示被排除的记录数量。新建和导入的数据默认作为正式数据参与统计。
+
 后端监听 `8088` 端口。首次运行会自动创建 `freshman_campus_ai` 数据库、数据表和演示数据。出现 Spring Boot 启动完成信息后，可访问：
 
 ```text
@@ -147,12 +155,24 @@ http://192.168.1.20:5173/
 
 - `GET /actuator/health`：数据库与服务健康状态
 - `GET /api/dashboard/overview`：管理首页汇总数据
+- `GET /api/analytics/overview`：AI咨询、任务和热门地点分析
 - `GET/POST/PUT/DELETE /api/places`：校园地点
 - `GET/POST/PUT/DELETE /api/roads`：导航路网
 - `GET/POST/PUT/DELETE /api/tasks`：新生任务
 - `GET/POST/PUT/DELETE /api/knowledge`：AI 知识库
+- `GET/POST/PUT/DELETE /api/media`：实景素材元数据
+- `GET /api/media/summary`：素材质检汇总
+- `GET/PUT /api/settings`：系统配置
 - `POST /api/ai/analyze`：空间运营影响分析
 - `POST /api/auth/login`：演示登录接口
+
+## 数据真实性规则
+
+- 数量、比例、图表、最近更新、任务进度和AI咨询趋势均由后端汇总，前端不再保存业务兜底数字。
+- 接口失败时页面显示错误或空状态，不会切换到本地演示数据。
+- AI分析只返回当前数据库中能够匹配的地点、道路、任务和知识；找不到证据时会明确拒绝编造。
+- 无人机数字孪生模型尚未导入时只显示占位底图，模型进度固定为未接入，不伪造场景坐标或导航路线。
+- 实景图片文件上传功能尚未接入对象存储；当前素材页管理的是数据库中的素材地址、地点绑定和质检元数据。
 
 后端测试：
 

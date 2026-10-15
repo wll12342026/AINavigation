@@ -10,7 +10,7 @@ public class StudentTaskController {
     private final StudentTaskRepository repository;
     public StudentTaskController(StudentTaskRepository repository) { this.repository = repository; }
 
-    @GetMapping public List<StudentTask> list() { return repository.findAllByOrderBySortOrderAsc(); }
+    @GetMapping public List<StudentTask> list() { return repository.findAllByDemoDataFalseOrderBySortOrderAsc(); }
     @GetMapping("/{id}") public StudentTask detail(@PathVariable Long id) { return find(id); }
     @PostMapping public StudentTask create(@Valid @RequestBody StudentTask task) { task.setId(null); return repository.save(task); }
     @PutMapping("/{id}") public StudentTask update(@PathVariable Long id, @Valid @RequestBody StudentTask input) {

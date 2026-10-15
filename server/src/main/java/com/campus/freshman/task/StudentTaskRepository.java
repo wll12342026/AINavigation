@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface StudentTaskRepository extends JpaRepository<StudentTask, Long> {
     List<StudentTask> findAllByOrderBySortOrderAsc();
+    List<StudentTask> findAllByDemoDataFalseOrderBySortOrderAsc();
 }

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
-type Props = { tall?: boolean; showRoute?: boolean }
+type Props = { tall?: boolean; showRoute?: boolean; placeNames?: string[] }
 
 const buildings = [
   { left: '8%', top: '18%', w: 54, h: 46 },
@@ -13,7 +13,7 @@ const buildings = [
   { left: '68%', top: '63%', w: 82, h: 48 },
 ] as const
 
-export default function CampusScene({ tall = false, showRoute = true }: Props) {
+export default function CampusScene({ tall = false, showRoute = true, placeNames = [] }: Props) {
   return (
     <View style={[styles.scene, tall && styles.tall]}>
       <View style={styles.grid} />
@@ -36,11 +36,11 @@ export default function CampusScene({ tall = false, showRoute = true }: Props) {
       ) : null}
       <View style={[styles.pin, { left: '12%', bottom: 18 }]}>
         <Ionicons name="location" color="white" size={13} />
-        <Text style={styles.pinText}>东门</Text>
+        <Text style={styles.pinText}>{placeNames[0] ?? '暂无地点'}</Text>
       </View>
       <View style={[styles.pin, styles.pinBlue, { right: 12, top: 19 }]}>
         <Ionicons name="business" color="white" size={12} />
-        <Text style={styles.pinText}>校园卡中心</Text>
+        <Text style={styles.pinText}>{placeNames[1] ?? '暂无地点'}</Text>
       </View>
       <View style={styles.pending}><Text style={styles.pendingText}>等待导入校园数字孪生</Text></View>
     </View>

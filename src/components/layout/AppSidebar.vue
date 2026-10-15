@@ -13,7 +13,7 @@ import { navigation } from '@/data/navigation'
         <span class="nav-symbol">{{ item.icon }}</span><span>{{ item.label }}</span>
       </RouterLink>
     </nav>
-    <div class="sidebar-foot"><div class="pulse-dot" /><div><strong>系统运行正常</strong><span>AI 服务与路网引擎已连接</span></div></div>
+    <div class="sidebar-foot"><div class="pulse-dot" /><div><strong>管理端已启动</strong><span>服务状态以页面实时检测为准</span></div></div>
     <div class="sidebar-grid" aria-hidden="true" />
   </aside>
 </template>

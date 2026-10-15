@@ -6,14 +6,8 @@ import { colors } from '../theme'
 import type { ScreenProps } from '../types'
 import { getTasks, type StudentTask } from '../services/api'
 
-const fallbackTasks: StudentTask[] = [
-  { id: 1, name: '学院报到', description: '身份验证与入学资料审核', location: '综合楼 A201', status: 'ACTIVE', progress: 89, completedCount: 428, totalCount: 480, estimatedMinutes: 20, sortOrder: 1 },
-  { id: 2, name: '领取校园卡', description: '领取校园身份与消费卡', location: '综合服务中心 1 楼', status: 'ACTIVE', progress: 82, completedCount: 392, totalCount: 480, estimatedMinutes: 25, sortOrder: 2 },
-  { id: 3, name: '宿舍入住', description: '登记入住并领取钥匙', location: '学生公寓 A 区', status: 'ACTIVE', progress: 74, completedCount: 356, totalCount: 480, estimatedMinutes: 35, sortOrder: 3 },
-]
-
 export default function TasksScreen({ notify }: ScreenProps) {
-  const [tasks, setTasks] = useState<StudentTask[]>(fallbackTasks)
+  const [tasks, setTasks] = useState<StudentTask[]>([])
   const [backendOnline, setBackendOnline] = useState(false)
   useEffect(() => { getTasks().then(data => { setTasks(data); setBackendOnline(true) }).catch(() => setBackendOnline(false)) }, [])
   const averageProgress = useMemo(() => tasks.length ? Math.round(tasks.reduce((sum,item) => sum + item.progress, 0) / tasks.length) : 0, [tasks])
@@ -22,7 +16,7 @@ export default function TasksScreen({ notify }: ScreenProps) {
     <ScrollView style={styles.page} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <PageHeader title="新生任务" subtitle="AI会根据时间、路况和前置条件动态调整" action={<TouchableOpacity style={styles.headerAction} onPress={() => notify('任务日历已打开')}><Ionicons name="calendar-outline" size={20} color={colors.primary} /></TouchableOpacity>} />
       <View style={styles.hero}>
-        <Text style={styles.heroTitle}>新生报到一日通</Text><Text style={styles.heroSub}>{backendOnline ? '已同步管理端任务配置' : '当前使用离线任务配置'} · 预计 {totalMinutes} 分钟</Text>
+        <Text style={styles.heroTitle}>新生报到一日通</Text><Text style={styles.heroSub}>{backendOnline ? '已同步管理端真实任务数据' : '后端未连接，未使用演示任务'} · 预计 {totalMinutes} 分钟</Text>
         <View style={styles.progressRow}>
           <View style={styles.ring}><Text style={styles.ringValue}>{averageProgress}%</Text><Text style={styles.ringLabel}>总体进度</Text></View>
           <View style={styles.stats}>{[[String(tasks.length), '流程节点'], [String(tasks.filter(item => item.status === 'ACTIVE').length), '运行中'], [String(tasks.filter(item => item.status !== 'ACTIVE').length), '已暂停']].map(item => <View key={item[1]} style={styles.stat}><Text style={styles.statValue}>{item[0]}</Text><Text style={styles.statLabel}>{item[1]}</Text></View>)}</View>
@@ -32,6 +26,7 @@ export default function TasksScreen({ notify }: ScreenProps) {
       <View style={styles.section}>
         <SectionTitle title="今日流程" action="✦ AI重新排序" onPress={() => notify('AI已检查，当前顺序为最优')} />
         <Card style={styles.timeline}>
+          {!tasks.length ? <Text style={styles.empty}>暂无任务数据</Text> : null}
           {tasks.map((item, index) => {
             const done = index === 0; const active = index === 1
             return <View key={item.id} style={styles.taskRow}>
@@ -44,16 +39,7 @@ export default function TasksScreen({ notify }: ScreenProps) {
         </Card>
       </View>
 
-      <View style={styles.section}>
-        <SectionTitle title="材料检查" action="AI检查" onPress={() => notify('AI已根据任务自动核对材料')} />
-        <Card style={styles.materials}>
-          {[
-            ['身份证原件', true], ['录取通知书', true], ['一寸白底照片 2 张', false],
-          ].map(([name, ready]) => <View key={String(name)} style={styles.materialRow}><View style={[styles.check, !ready && styles.checkOff]}><Ionicons name={ready ? 'checkmark' : 'ellipse'} size={12} color={ready ? 'white' : colors.orange} /></View><Text style={styles.materialName}>{name}</Text><Text style={[styles.materialState, !ready && { color: colors.orange }]}>{ready ? '已准备' : '待准备'}</Text></View>)}
-        </Card>
-      </View>
-
-      <View style={styles.aiTip}><View style={styles.tipIcon}><Ionicons name="sparkles" size={18} color="white" /></View><View style={{ flex: 1 }}><Text style={styles.tipTitle}>AI行程提醒</Text><Text style={styles.tipText}>校园卡中心 16:30 后排队更少，可先去宿舍放置行李。</Text></View><TouchableOpacity style={styles.adopt} onPress={() => notify('任务顺序已调整')}><Text style={styles.adoptText}>采用</Text></TouchableOpacity></View>
+      <View style={styles.aiTip}><View style={styles.tipIcon}><Ionicons name="sparkles" size={18} color="white" /></View><View style={{ flex: 1 }}><Text style={styles.tipTitle}>数据说明</Text><Text style={styles.tipText}>材料清单和个性化提醒将在后端建立对应记录后展示，当前不会生成虚假内容。</Text></View></View>
     </ScrollView>
   )
 }
@@ -76,4 +62,5 @@ const styles = StyleSheet.create({
   check: { width: 24, height: 24, borderRadius: 8, backgroundColor: colors.teal, alignItems: 'center', justifyContent: 'center' }, checkOff: { backgroundColor: colors.warningSoft }, materialName: { flex: 1, color: colors.text, fontSize: 11, fontWeight: '700', marginLeft: 10 }, materialState: { color: colors.teal, fontSize: 9, fontWeight: '700' },
   aiTip: { margin: 16, padding: 13, borderRadius: 18, backgroundColor: '#EFEDFF', flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: '#DFDAFF' },
   tipIcon: { width: 35, height: 35, borderRadius: 11, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center' }, tipTitle: { color: colors.ink, fontSize: 11, fontWeight: '900' }, tipText: { color: colors.text, fontSize: 9, lineHeight: 14, marginTop: 3 }, adopt: { paddingHorizontal: 11, paddingVertical: 8, borderRadius: 9, backgroundColor: colors.violet }, adoptText: { color: 'white', fontSize: 9, fontWeight: '800' },
+  empty: { paddingVertical: 24, textAlign: 'center', color: colors.muted, fontSize: 11 },
 })

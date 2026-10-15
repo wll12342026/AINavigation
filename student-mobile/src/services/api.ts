@@ -24,12 +24,40 @@ export interface StudentTask {
 
 export interface DashboardOverview {
   placeCount: number
+  buildingCount: number
+  servicePointCount: number
   roadKilometers: number
+  roadNodeCount: number
+  roadCount: number
   openRoadRate: number
   pendingKnowledge: number
   knowledgeHealth: number
   expiringKnowledge: number
+  excludedDemoRecords: number
   tasks: { name: string; progress: number; completed: number; total: number }[]
+  recentKnowledge: { title: string; updatedAt: string; status: string }[]
+}
+
+export interface Place {
+  id: number
+  name: string
+  category: string
+  building: string
+  floor: string
+  status: string
+  entranceHint: string
+  description: string
+}
+
+export interface RoadSegment {
+  id: number
+  name: string
+  fromNode: string
+  toNode: string
+  lengthMeters: number
+  status: string
+  restrictionReason: string | null
+  accessible: boolean
 }
 
 function resolveDevHost() {
@@ -63,4 +91,12 @@ export function getTasks() {
 
 export function getDashboardOverview() {
   return getJson<DashboardOverview>('/dashboard/overview')
+}
+
+export function getPlaces() {
+  return getJson<Place[]>('/places')
+}
+
+export function getRoads() {
+  return getJson<RoadSegment[]>('/roads')
 }

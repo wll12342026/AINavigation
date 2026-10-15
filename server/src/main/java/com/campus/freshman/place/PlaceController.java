@@ -20,7 +20,7 @@ public class PlaceController {
     public PlaceController(PlaceRepository repository) { this.repository = repository; }
 
     @GetMapping
-    public List<Place> list() { return repository.findAllByOrderByUpdatedAtDesc(); }
+    public List<Place> list() { return repository.findAllByDemoDataFalseOrderByUpdatedAtDesc(); }
 
     @GetMapping("/{id}")
     public Place detail(@PathVariable Long id) { return find(id); }

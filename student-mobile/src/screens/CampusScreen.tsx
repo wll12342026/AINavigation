@@ -1,18 +1,24 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import CampusScene from '../components/CampusScene'
 import { PrimaryButton } from '../components/Ui'
 import { colors, shadow } from '../theme'
 import type { ScreenProps } from '../types'
+import { getPlaces, getRoads, type Place, type RoadSegment } from '../services/api'
 
 export default function CampusScreen({ notify }: ScreenProps) {
   const [layer, setLayer] = useState('导航')
-  const [navigating, setNavigating] = useState(false)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [roads, setRoads] = useState<RoadSegment[]>([])
+  const [online, setOnline] = useState(false)
+  useEffect(() => { Promise.all([getPlaces(), getRoads()]).then(([placeRows, roadRows]) => { setPlaces(placeRows); setRoads(roadRows); setOnline(true) }).catch(() => setOnline(false)) }, [])
+  const openRoads = useMemo(() => roads.filter(item => item.status === 'OPEN'), [roads])
+  const roadMeters = useMemo(() => roads.reduce((sum, item) => sum + (item.lengthMeters || 0), 0), [roads])
   return (
     <View style={styles.page}>
       <View style={styles.mapArea}>
-        <CampusScene tall />
+        <CampusScene tall showRoute={false} placeNames={places.slice(0,2).map(item => item.name)} />
         <View style={styles.search}>
           <Ionicons name="search" size={18} color={colors.text} />
           <TextInput style={styles.searchInput} placeholder="搜索地点或告诉AI要办的事" placeholderTextColor={colors.muted} />
@@ -25,18 +31,14 @@ export default function CampusScreen({ notify }: ScreenProps) {
       </View>
       <View style={styles.sheet}>
         <View style={styles.handle} />
-        <View style={styles.sheetTitle}><Text style={styles.title}>{navigating ? '正在导航至校园卡中心' : '最优任务路线'}</Text><View style={styles.verified}><Ionicons name="shield-checkmark" size={13} color={colors.teal} /><Text style={styles.verifiedText}>AI已验证可通行</Text></View></View>
+        <View style={styles.sheetTitle}><Text style={styles.title}>校园路网数据</Text><View style={styles.verified}><Ionicons name="server-outline" size={13} color={colors.teal} /><Text style={styles.verifiedText}>{online ? 'MySQL已连接' : '后端离线'}</Text></View></View>
         <View style={styles.summary}>
-          {[['12分钟', '预计用时'], ['860米', '步行距离'], ['2个', '任务节点']].map(item => <View key={item[1]} style={styles.summaryItem}><Text style={styles.summaryValue}>{item[0]}</Text><Text style={styles.summaryLabel}>{item[1]}</Text></View>)}
+          {[[String(places.length), '地点'], [`${roadMeters}米`, '路网总长'], [String(openRoads.length), '开放路段']].map(item => <View key={item[1]} style={styles.summaryItem}><Text style={styles.summaryValue}>{item[0]}</Text><Text style={styles.summaryLabel}>{item[1]}</Text></View>)}
         </View>
         <ScrollView style={styles.steps} showsVerticalScrollIndicator={false}>
-          {[
-            ['arrow-up', '沿中心大道向北', '经过图书馆西侧', '420m'],
-            ['return-down-forward', '在钟楼路口右转', '前方有蓝色服务指示牌', '310m'],
-            ['enter-outline', '从综合服务中心东门进入', 'AI已匹配入口实景图', '130m'],
-          ].map((step, index) => <View key={step[1]} style={styles.step}><View style={[styles.stepIcon, index === 2 && styles.stepIconDone]}><Ionicons name={step[0] as keyof typeof Ionicons.glyphMap} size={16} color={index === 2 ? colors.teal : colors.primary} /></View><View style={{ flex: 1 }}><Text style={styles.stepTitle}>{step[1]}</Text><Text style={styles.stepSub}>{step[2]}</Text></View><Text style={styles.stepDistance}>{step[3]}</Text></View>)}
+          {!roads.length ? <Text style={styles.stepSub}>暂无路网记录，请先在管理端录入。</Text> : roads.slice(0,3).map((road, index) => <View key={road.id} style={styles.step}><View style={[styles.stepIcon, road.status === 'OPEN' && styles.stepIconDone]}><Ionicons name="git-branch-outline" size={16} color={road.status === 'OPEN' ? colors.teal : colors.orange} /></View><View style={{ flex: 1 }}><Text style={styles.stepTitle}>{road.name}</Text><Text style={styles.stepSub}>{road.fromNode} → {road.toNode} · {road.status}</Text></View><Text style={styles.stepDistance}>{road.lengthMeters}m</Text></View>)}
         </ScrollView>
-        <PrimaryButton label={navigating ? '结束导航' : '开始3D导航'} icon={navigating ? 'stop-circle-outline' : 'navigate'} onPress={() => { setNavigating(v => !v); notify(navigating ? '导航已结束' : '已进入3D导航演示') }} />
+        <PrimaryButton label="等待真实模型与路线引擎" icon="cube-outline" onPress={() => notify('当前仅展示真实数据库路网，尚未生成虚假导航路线')} />
       </View>
     </View>
   )

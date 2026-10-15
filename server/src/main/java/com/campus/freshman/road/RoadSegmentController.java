@@ -10,7 +10,7 @@ public class RoadSegmentController {
     private final RoadSegmentRepository repository;
     public RoadSegmentController(RoadSegmentRepository repository) { this.repository = repository; }
 
-    @GetMapping public List<RoadSegment> list() { return repository.findAllByOrderByUpdatedAtDesc(); }
+    @GetMapping public List<RoadSegment> list() { return repository.findAllByDemoDataFalseOrderByUpdatedAtDesc(); }
     @GetMapping("/{id}") public RoadSegment detail(@PathVariable Long id) { return find(id); }
     @PostMapping public RoadSegment create(@Valid @RequestBody RoadSegment road) { road.setId(null); return repository.save(road); }
     @PutMapping("/{id}") public RoadSegment update(@PathVariable Long id, @Valid @RequestBody RoadSegment input) {

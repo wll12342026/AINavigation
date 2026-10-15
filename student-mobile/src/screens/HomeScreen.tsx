@@ -5,7 +5,7 @@ import CampusScene from '../components/CampusScene'
 import { Badge, Card, SectionTitle } from '../components/Ui'
 import { colors } from '../theme'
 import type { ScreenProps, TabKey } from '../types'
-import { getDashboardOverview } from '../services/api'
+import { getDashboardOverview, getPlaces, type Place } from '../services/api'
 
 const services: { icon: keyof typeof Ionicons.glyphMap; label: string; color: string; bg: string; tab?: TabKey }[] = [
   { icon: 'cube-outline', label: '3D校园', color: colors.primary, bg: colors.primarySoft, tab: 'campus' },
@@ -16,13 +16,17 @@ const services: { icon: keyof typeof Ionicons.glyphMap; label: string; color: st
 
 export default function HomeScreen({ goTo, notify }: ScreenProps) {
   const [query, setQuery] = useState('')
-  const [taskProgress, setTaskProgress] = useState(68)
-  const [taskCount, setTaskCount] = useState(4)
+  const [taskProgress, setTaskProgress] = useState(0)
+  const [taskCount, setTaskCount] = useState(0)
   const [backendOnline, setBackendOnline] = useState(false)
+  const [recommendedPlace, setRecommendedPlace] = useState<Place | null>(null)
+  const [recentKnowledge, setRecentKnowledge] = useState<string[]>([])
   useEffect(() => {
-    getDashboardOverview().then(data => {
+    Promise.all([getDashboardOverview(), getPlaces()]).then(([data, places]) => {
       if (data.tasks.length) setTaskProgress(Math.round(data.tasks.reduce((sum, item) => sum + item.progress, 0) / data.tasks.length))
       setTaskCount(data.tasks.length)
+      setRecommendedPlace(places.find(item => item.status === 'OPEN') ?? places[0] ?? null)
+      setRecentKnowledge(data.recentKnowledge.map(item => item.title))
       setBackendOnline(true)
     }).catch(() => setBackendOnline(false))
   }, [])
@@ -74,15 +78,14 @@ export default function HomeScreen({ goTo, notify }: ScreenProps) {
           <CampusScene />
           <View style={styles.placeRow}>
             <View style={styles.placeIcon}><Ionicons name="card-outline" size={20} color={colors.primary} /></View>
-            <View style={{ flex: 1 }}><Text style={styles.cardTitle}>校园卡中心</Text><Text style={styles.cardSub}>综合服务中心 1 楼 · 开放中</Text></View>
-            <Text style={styles.distance}>860m</Text>
+            <View style={{ flex: 1 }}><Text style={styles.cardTitle}>{recommendedPlace?.name ?? '暂无推荐地点'}</Text><Text style={styles.cardSub}>{recommendedPlace ? `${recommendedPlace.building || '建筑未配置'} ${recommendedPlace.floor || ''} · ${recommendedPlace.status}` : '请先在管理端录入地点'}</Text></View>
+            <Text style={styles.distance}>{backendOnline ? '数据库' : '离线'}</Text>
           </View>
         </Card>
 
-        <SectionTitle title="AI为你发现" action="换一批" onPress={() => notify('已更新今日校园建议')} />
+        <SectionTitle title="知识库最近更新" action="刷新" onPress={() => notify('数据会随管理端知识库更新')} />
         <View style={styles.discoveryRow}>
-          <Card style={styles.discovery}><Ionicons name="time-outline" size={22} color={colors.primary} /><Text style={styles.discoveryTitle}>避开排队高峰</Text><Text style={styles.discoveryText}>校园卡中心 14:30 后人流更少</Text></Card>
-          <Card style={styles.discovery}><Ionicons name="navigate-circle-outline" size={22} color={colors.teal} /><Text style={styles.discoveryTitle}>入口别走错</Text><Text style={styles.discoveryText}>报到点从综合楼东门进入</Text></Card>
+          {(recentKnowledge.length ? recentKnowledge.slice(0, 2) : ['暂无真实知识更新']).map((title,index) => <Card key={title} style={styles.discovery}><Ionicons name={index ? 'navigate-circle-outline' : 'time-outline'} size={22} color={index ? colors.teal : colors.primary} /><Text style={styles.discoveryTitle}>{title}</Text><Text style={styles.discoveryText}>{backendOnline ? '来自管理端知识库' : '后端未连接'}</Text></Card>)}
         </View>
       </View>
     </ScrollView>

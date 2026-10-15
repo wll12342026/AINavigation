@@ -35,3 +35,6 @@ management:
 logging:
   level:
     org.hibernate.SQL: warn
+
+campus:
+  seed-demo-data: ${CAMPUS_SEED_DEMO_DATA:false}
