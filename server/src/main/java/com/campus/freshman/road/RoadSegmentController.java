@@ -12,12 +12,17 @@ public class RoadSegmentController {
 
     @GetMapping public List<RoadSegment> list() { return repository.findAllByDemoDataFalseOrderByUpdatedAtDesc(); }
     @GetMapping("/{id}") public RoadSegment detail(@PathVariable Long id) { return find(id); }
-    @PostMapping public RoadSegment create(@Valid @RequestBody RoadSegment road) { road.setId(null); return repository.save(road); }
+    @PostMapping public RoadSegment create(@Valid @RequestBody RoadSegment road) {
+        road.setId(null); road.setName(road.getName().trim());
+        road.setFromNode(road.getFromNode().trim()); road.setToNode(road.getToNode().trim());
+        return repository.save(road);
+    }
     @PutMapping("/{id}") public RoadSegment update(@PathVariable Long id, @Valid @RequestBody RoadSegment input) {
         RoadSegment road = find(id);
-        road.setName(input.getName()); road.setFromNode(input.getFromNode()); road.setToNode(input.getToNode());
+        road.setName(input.getName().trim()); road.setFromNode(input.getFromNode().trim()); road.setToNode(input.getToNode().trim());
         road.setLengthMeters(input.getLengthMeters()); road.setStatus(input.getStatus());
         road.setRestrictionReason(input.getRestrictionReason()); road.setAccessible(input.getAccessible());
+        road.setBidirectional(input.getBidirectional()); road.setTravelSeconds(input.getTravelSeconds());
         return repository.save(road);
     }
     @DeleteMapping("/{id}") public void delete(@PathVariable Long id) { repository.delete(find(id)); }

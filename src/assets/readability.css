@@ -1,0 +1,123 @@
+/* Content-only typography: keep the approved sidebar sizes and proportions. */
+.app-shell.campus-admin-theme .main-area { font-size: 15px; }
+.app-shell.campus-admin-theme .main-area :is(input, select, textarea, button) { font-size: 14px; }
+.app-shell.campus-admin-theme .main-area p,
+.app-shell.campus-admin-theme .main-area :is(.metric-sub, .property, .form-field label, .form-field, .setting-row label small) { font-size: 13px; line-height: 1.75; }
+.app-shell.campus-admin-theme .main-area :is(.panel-head h2, .panel-head h3, .panel-title h3, .compact-card h3, .kw-section-head h3, .kw-card>h3, .ai-head h2) { font-size: 18px; line-height: 1.5; }
+.app-shell.campus-admin-theme .main-area :is(.panel-head p, .top-title p, .ai-head p, .field-hint, .scene-footer, .kw-muted, .kw-note, .kw-block, .kw-metrics, .kw-heading p, .kw-section-head p) { font-size: 13px; line-height: 1.65; }
+.app-shell.campus-admin-theme .main-area :is(.tag, .demo-mode-badge, .top-clock, .agent-online, .popover-row small, .popover-empty, .popover-title span, .profile small, .global-search kbd) { font-size: 12px; }
+.app-shell.campus-admin-theme .main-area :is(.popover-row b, .popover-title, .account-card b) { font-size: 14px; }
+.app-shell.campus-admin-theme .main-area .popover-row { min-height: 58px; }
+.app-shell.campus-admin-theme .main-area .global-search { height: 40px; }
+/* Header controls follow the reference: campus, search, notice, clock, avatar. */
+.app-shell.campus-admin-theme .main-area .top-actions { flex: 0 1 960px; min-width: 0; justify-content: flex-end; gap: 22px; }
+.app-shell.campus-admin-theme .main-area .top-actions > .top-popover-wrap { flex-shrink: 0; }
+.app-shell.campus-admin-theme .main-area .top-actions > .search-wrap { flex: 1 1 340px; min-width: 180px; max-width: 430px; width: auto; }
+.app-shell.campus-admin-theme .main-area .campus-switch { display: flex; height: 42px; gap: 12px; padding: 0 14px; border-radius: 9px; white-space: nowrap; }
+.app-shell.campus-admin-theme .main-area .global-search { height: 42px; gap: 12px; padding: 0 14px; border-radius: 9px; border-color: transparent; background: #f3f7f6; color: #849792; }
+.app-shell.campus-admin-theme .main-area .global-search input:focus-visible { outline: none; box-shadow: none; }
+.app-shell.campus-admin-theme .main-area .global-search input::placeholder { color: #879590; }
+.app-shell.campus-admin-theme .main-area .notification { width: 42px; height: 42px; border: 1px solid #e1ece8; border-radius: 9px; background: #f7faf9; color: #59766d; }
+.app-shell.campus-admin-theme .main-area .notification i { top: 6px; right: 7px; width: 9px; height: 9px; }
+.app-shell.campus-admin-theme .main-area .top-clock { display: flex; flex-shrink: 0; height: 26px; padding-left: 20px; gap: 9px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.app-shell.campus-admin-theme .main-area .profile { padding: 0; gap: 0; border-radius: 50%; }
+.app-shell.campus-admin-theme .main-area .profile .avatar { width: 42px; height: 42px; border: 3px solid #eaf6f0; background: #d8eee4; color: #00835e; font-size: 20px; }
+.app-shell.campus-admin-theme .main-area .top-actions button:focus-visible { outline: 2px solid #00875f; outline-offset: 3px; }
+.app-shell.campus-admin-theme .main-area .notification:hover { background: #eaf5ef; }
+@media (max-width: 1400px) {
+  .app-shell.campus-admin-theme .main-area .top-actions { gap: 14px; flex-basis: 780px; }
+  .app-shell.campus-admin-theme .main-area .top-clock { padding-left: 14px; font-size: 12px; }
+}
+@media (max-width: 1150px) {
+  .app-shell.campus-admin-theme .main-area .topbar { gap: 14px; }
+  .app-shell.campus-admin-theme .main-area .top-title p { display: none; }
+  .app-shell.campus-admin-theme .main-area .top-title h1 { font-size: 20px; }
+  .app-shell.campus-admin-theme .main-area .top-actions { gap: 10px; }
+  .app-shell.campus-admin-theme .main-area .campus-switch { gap: 8px; padding: 0 10px; }
+  .app-shell.campus-admin-theme .main-area .top-clock { padding-left: 10px; gap: 6px; }
+}
+.app-shell.campus-admin-theme .main-area :is(.btn, .filter-input, .select-input) { min-height: 40px; }
+.app-shell.campus-admin-theme .main-area .stat-card { min-height: 126px; gap: 13px; }
+.app-shell.campus-admin-theme .main-area .stat-copy span { font-size: 15px; }
+.app-shell.campus-admin-theme .main-area .stat-copy strong { font-size: 34px; line-height: 1.25; }
+.app-shell.campus-admin-theme .main-area .stat-copy small { font-size: 13px; line-height: 1.5; color: #6f8477; }
+.app-shell.campus-admin-theme .main-area .stat-trend { font-size: 11px; }
+.app-shell.campus-admin-theme .main-area .reference-main { height: clamp(480px, calc(100vh - 450px), 740px); }
+.app-shell.campus-admin-theme .main-area .ai-head { flex-shrink: 0; padding: 16px; flex-wrap: wrap; gap: 8px; }
+.app-shell.campus-admin-theme .main-area .ai-brand { flex: 1 1 260px; min-width: 0; }
+.app-shell.campus-admin-theme .main-area .ai-brand>div:last-child { min-width: 0; }
+.app-shell.campus-admin-theme .main-area .ai-orb, .app-shell.campus-admin-theme .main-area .agent-online { flex-shrink: 0; }
+.app-shell.campus-admin-theme .main-area .ai-query { min-height: 50px; }
+.app-shell.campus-admin-theme .main-area .ai-query input { font-size: 15px; }
+.app-shell.campus-admin-theme .main-area .chat-answer p { font-size: 15px; line-height: 1.8; }
+.app-shell.campus-admin-theme .main-area .answer-title strong { font-size: 16px; }
+.app-shell.campus-admin-theme .main-area .answer-ok { width: 30px; height: 30px; flex-shrink: 0; font-size: 12px; }
+.app-shell.campus-admin-theme .main-area .route-open { height: 42px; font-size: 15px; }
+.app-shell.campus-admin-theme .main-area :is(.assistant-steps span, .assistant-steps i, .impact-chips span, .assistant-road-status, .assistant-road-status button) { font-size: 13px; }
+.app-shell.campus-admin-theme .main-area .assistant-steps { gap: 10px 16px; }
+.app-shell.campus-admin-theme .main-area .event { font-size: 14px; line-height: 1.65; }
+.app-shell.campus-admin-theme .main-area .event b { font-size: 14px; }
+.app-shell.campus-admin-theme .main-area .event time { font-size: 12px; flex-shrink: 0; }
+.app-shell.campus-admin-theme .main-area .compact-events .event { padding: 12px 0; }
+.app-shell.campus-admin-theme .main-area :is(.knowledge-sources, .knowledge-sources small) { font-size: 13px; line-height: 1.75; }
+.app-shell.campus-admin-theme .main-area .scene-heading { font-size: 22px; }
+.app-shell.campus-admin-theme .main-area .map-toolbar { width: 120px; top: 67px; }
+.app-shell.campus-admin-theme .main-area .map-toolbar button { min-height: 40px; font-size: 14px; }
+.app-shell.campus-admin-theme .main-area .map-tools button { font-size: 22px; }
+.app-shell.campus-admin-theme .main-area .mock-pin>span { font-size: 13px; }
+.app-shell.campus-admin-theme .main-area .mock-pin small { font-size: 11px; margin-top: 3px; }
+.app-shell.campus-admin-theme .main-area .mock-pin { max-width: 200px; }
+.app-shell.campus-admin-theme .main-area .mock-pin>span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-shell.campus-admin-theme .main-area :is(.pending-model, .map-legend, .layer-popover, .scene-status, .construction-pin span) { font-size: 12px; }
+.app-shell.campus-admin-theme .main-area .map-legend { flex-wrap: wrap; gap: 7px 12px; }
+.app-shell.campus-admin-theme .main-area .pending-model { bottom: 83px; max-width: calc(100% - 100px); white-space: normal; }
+.app-shell.campus-admin-theme .main-area .reference-bottom { align-items: stretch; }
+.app-shell.campus-admin-theme .main-area .compact-card { min-height: 240px; padding: 17px; }
+.app-shell.campus-admin-theme .main-area :is(.card-title-row button, .consultation-summary small, .consultation-summary>span, .dashboard-data-note) { font-size: 12px; }
+.app-shell.campus-admin-theme .main-area .card-title-row { flex-wrap: wrap; gap: 8px; }
+.app-shell.campus-admin-theme .main-area .consultation-summary strong { font-size: 24px; }
+.app-shell.campus-admin-theme .main-area .consultation-chart { height: 150px; }
+.app-shell.campus-admin-theme .main-area .consultation-chart text { font-size: 12px; }
+.app-shell.campus-admin-theme .main-area :is(.destination-grid b, .destination-grid small, .task-mini-list>div, .task-mini-list b, .empty-dest p, .empty-dest button) { font-size: 13px; }
+.app-shell.campus-admin-theme .main-area .empty-dest { min-height: 155px; gap: 12px; }
+.app-shell.campus-admin-theme .main-area .empty-dest>span { flex-shrink: 0; }
+.app-shell.campus-admin-theme .main-area .task-ring span { font-size: 11px; }
+.app-shell.campus-admin-theme .main-area .task-ring strong { font-size: 25px; }
+.app-shell.campus-admin-theme .main-area .task-mini-list { gap: 14px; }
+.app-shell.campus-admin-theme .main-area .data-table th { font-size: 13px; height: 46px; }
+.app-shell.campus-admin-theme .main-area .data-table td { font-size: 14px; height: 64px; line-height: 1.6; }
+.app-shell.campus-admin-theme .main-area :is(.form-field input, .form-field textarea, .form-field select, .kw-form-stack input, .kw-form-stack textarea, .kw-form-stack select) { font-size: 14px; line-height: 1.6; }
+.app-shell.campus-admin-theme .main-area :is(.kw-form-stack label, .kw-wrap label, .setting-row label b, .kw-evidence b, .kw-chunk>div) { font-size: 14px; }
+.app-shell.campus-admin-theme .main-area :is(.kw-evidence p, .kw-evidence small, .kw-answer, .kw-debug-answer, .kw-chunk p, .kw-test-result, .kw-empty, .kw-search-result, .kw-document-split pre, .kw-release, .kw-chips span) { font-size: 14px; line-height: 1.8; }
+.app-shell.campus-admin-theme .main-area :is(.kw-stats span, .kw-stats small, .kw-error, .field-hint, .information-panel ol, .information-panel p, .next-panel p, .config-form label, .preview-note) { font-size: 13px; }
+.app-shell.campus-admin-theme .main-area :is(.planner-form label, .planner-form .planner-check, .planner-language p, .planner-language textarea, .planner-route-detail b, .planner-route-detail span, .planner-route-detail small, .planner-empty, .planner-empty small, .planner-evidence, .planner-result-metrics span) { font-size: 13px; line-height: 1.7; }
+.app-shell.campus-admin-theme .main-area :is(.planner-legend span, .planner-map-note, .topology-caption, .analytics-bar-value, .bar-col span) { font-size: 12px; }
+.app-shell.campus-admin-theme .main-area :is(.planner-language h4, .planner-route-detail h4, .planner-evidence h4, .insight b, .analytics-category-row, .analytics-category-row b, .progress-item b, .progress-num) { font-size: 14px; }
+.app-shell.campus-admin-theme .main-area :is(.insight p, .health-info span, .road-list b, .road-list small, .road-list em) { font-size: 13px; }
+.app-shell.campus-admin-theme .main-area .analytics-distribution { gap: 18px; }
+.app-shell.campus-admin-theme .main-area .analytics-category-row { grid-template-columns: 10px minmax(0, 1fr) auto; }
+.app-shell.campus-admin-theme .main-area .modal { max-height: calc(100dvh - 40px); overflow-y: auto; }
+.app-shell.campus-admin-theme .main-area .page-tools { flex-wrap: wrap; }
+.app-shell.campus-admin-theme .main-area :is(.page-tools-left, .page-tools-right) { flex-wrap: wrap; }
+@media (max-width: 1450px) {
+  .app-shell.campus-admin-theme .main-area .stat-card { align-items: flex-start; padding-top: 24px; }
+  .app-shell.campus-admin-theme .main-area .stat-icon { width: 40px; height: 46px; }
+  .app-shell.campus-admin-theme .main-area .stat-copy strong { font-size: 30px; }
+  .app-shell.campus-admin-theme .main-area .stat-mini-ring { display: none; }
+  .app-shell.campus-admin-theme .main-area .stat-trend { top: 4px; }
+  .app-shell.campus-admin-theme .main-area .reference-main { grid-template-columns: minmax(0, 1.5fr) minmax(350px, 1fr); }
+  .app-shell.campus-admin-theme .main-area .kw-toolbar { flex-wrap: wrap; }
+}
+@media (max-width: 1190px) {
+  .app-shell.campus-admin-theme .main-area .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-shell.campus-admin-theme .main-area .reference-main { grid-template-columns: minmax(0, 1fr) 330px; }
+  .app-shell.campus-admin-theme .main-area .mock-pin { max-width: 155px; }
+  .app-shell.campus-admin-theme .main-area .pin-c { left: 50%; }
+  .app-shell.campus-admin-theme .main-area .pin-a { top: 60%; }
+  .app-shell.campus-admin-theme .main-area .task-compact-body { grid-template-columns: 108px minmax(0, 1fr); }
+  .app-shell.campus-admin-theme .main-area .task-ring { width: 100px; height: 100px; }
+  .app-shell.campus-admin-theme .main-area .search-wrap { width: 210px; }
+  .app-shell.campus-admin-theme .main-area .settings-content { padding: 18px; }
+  .app-shell.campus-admin-theme .main-area .setting-row { grid-template-columns: 170px minmax(0, 1fr); }
+  .app-shell.campus-admin-theme .main-area .setting-control { flex-wrap: wrap; }
+}

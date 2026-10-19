@@ -19,3 +19,12 @@ server/target/
 server/data/
 .env
 .env.local
+
+# Generated viewer assets and local campus models
+public/twin-viewer/
+public/models/
+test-results/
+playwright-report/
+
+# Local preview output
+output/

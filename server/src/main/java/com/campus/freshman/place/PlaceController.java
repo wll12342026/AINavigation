@@ -40,6 +40,8 @@ public class PlaceController {
         place.setLatitude(input.getLatitude());
         place.setEntranceHint(input.getEntranceHint());
         place.setDescription(input.getDescription());
+        place.setAliases(input.getAliases());
+        place.setOpeningHours(input.getOpeningHours());
         return repository.save(place);
     }
 

@@ -332,3 +332,36 @@ button { cursor: pointer; }
   .profile small { display: none; }
   .top-title h1 { font-size: 24px; }
 }
+
+/* 2026 light glass navigation shell, aligned with the new dashboard references. */
+.app-shell{grid-template-columns:176px minmax(0,1fr)}
+.sidebar{width:176px;color:#314f79;background:linear-gradient(180deg,rgba(246,251,255,.98),rgba(235,246,255,.96));border-right:1px solid #d8e8f7;box-shadow:8px 0 26px rgba(58,98,149,.05)}
+.sidebar::before{background:radial-gradient(circle at 40% 88%,rgba(73,158,255,.14),transparent 28%)}
+.brand{height:70px;padding:0 16px;gap:9px;border-bottom:1px solid #dfebf7}
+.brand-mark{width:42px;height:42px;transform:scale(.84)}
+.brand strong{color:#0e4f9e;font-size:19px;text-shadow:none;letter-spacing:.02em}
+.brand small{color:#7188a6;font-size:8px;letter-spacing:0}
+.main-nav{padding:18px 9px;gap:7px}
+.nav-item{height:50px;padding:0 14px;gap:11px;border-radius:10px;color:#31537f;font-size:13px}
+.nav-item:hover{color:#176ada;background:#e7f2ff}
+.nav-item.active{color:#176fea;border-color:#c9e0ff;background:linear-gradient(90deg,#dcecff,#edf6ff);box-shadow:0 7px 20px rgba(46,117,228,.1),inset 3px 0 #2779f4}
+.nav-item.active::before{display:none}
+.sidebar-foot{left:13px;right:13px;bottom:17px;padding:10px;border-color:#dbe9f5;background:rgba(255,255,255,.66)}
+.sidebar-foot strong{color:#355478;font-size:9px}.sidebar-foot span{color:#8196af;font-size:7px}.sidebar-grid{display:none}
+.main-area{grid-column:2}
+.topbar{height:70px;padding:0 20px 0 26px;border-bottom-color:#dce8f4;background:rgba(250,253,255,.92);box-shadow:0 5px 22px rgba(45,85,135,.04)}
+.top-title h1{font-size:19px;color:#0b2852}.top-title p{margin-top:3px;font-size:9px}.top-actions{gap:9px}
+.campus-switch,.global-search{height:40px;border-color:#d4e3f2;background:rgba(247,251,255,.9)}
+.campus-switch{padding:0 12px;font-size:10px}.mini-building{font-size:18px}.global-search{width:min(330px,23vw)}
+.icon-btn{width:38px;height:38px;border:0;background:transparent}.profile .avatar{width:36px;height:36px}.profile b{font-size:10px}.profile small{font-size:8px}
+.page-root{min-height:calc(100vh - 70px);padding:14px 14px 18px;background:radial-gradient(circle at 55% 0,rgba(192,228,255,.42),transparent 36%),linear-gradient(145deg,#edf6fd,#f5f9fd)}
+.panel{border-color:rgba(207,224,239,.9);background:rgba(255,255,255,.88);box-shadow:0 9px 28px rgba(48,86,135,.07);backdrop-filter:blur(12px)}
+.stat-row{margin-bottom:10px}.stat-card{min-height:90px;padding:12px 15px;border-color:#d8e7f4;border-radius:13px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(242,249,255,.91));box-shadow:0 7px 22px rgba(39,86,143,.06)}
+.stat-icon{width:48px;height:48px}.stat-copy span{font-size:10px}.stat-copy strong{font-size:25px}.stat-copy small{font-size:8px}.stat-trend{display:none}
+.dashboard-grid{gap:10px}.bottom-grid{margin-top:10px;gap:10px}.map-card{border:1px solid rgba(255,255,255,.64);border-radius:15px}.ai-panel{border-radius:15px}.ai-head{padding:15px;background:radial-gradient(circle at 7% 8%,rgba(68,211,255,.36),transparent 28%),linear-gradient(135deg,#0f427c,#173e78 58%,#263a89)}.ai-body{padding:12px;background:linear-gradient(rgba(248,252,255,.96),rgba(240,248,255,.96))}
+.campus-blueprint{background:radial-gradient(ellipse at 72% 68%,rgba(67,188,225,.62) 0 14%,rgba(120,196,207,.48) 15%,transparent 24%),radial-gradient(circle at 40% 38%,rgba(112,175,118,.62),transparent 28%),linear-gradient(145deg,#7db1c7,#9fc7b9 53%,#7baab8)}
+.campus-blueprint::before{opacity:.34}.campus-blueprint::after{background:linear-gradient(112deg,rgba(255,255,255,.28),transparent 38%),radial-gradient(circle at 20% 24%,rgba(225,247,211,.34),transparent 19%)}
+.mock-building{border-color:rgba(255,255,255,.78);background:linear-gradient(145deg,#fff 0 46%,#bad2d6 47% 100%);box-shadow:8px 9px 0 rgba(41,84,92,.25),0 13px 25px rgba(31,69,82,.16)}
+.map-toolbar{background:rgba(247,252,255,.88);border:1px solid rgba(255,255,255,.7)}.map-toolbar button{color:#31577e}.map-toolbar button.active{color:white;background:#2675ef}.map-tools button{color:#214e7d;border-color:rgba(255,255,255,.75);background:rgba(250,253,255,.9)}
+.pending-model{color:#eaf6ff;background:rgba(22,66,103,.72)}
+@media(max-width:1280px){.app-shell{grid-template-columns:176px minmax(0,1fr)}.sidebar{width:176px}.brand{padding:0 14px}.brand strong{font-size:18px}.nav-item{padding:0 12px;font-size:12px}.top-title h1{font-size:17px}.global-search{width:210px}}

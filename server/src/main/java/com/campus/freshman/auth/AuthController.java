@@ -16,12 +16,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private final AdminSessions sessions;
+    public AuthController(AdminSessions sessions) { this.sessions=sessions; }
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        if (!"admin".equals(request.username()) || !"admin123".equals(request.password())) {
+        String password=System.getenv().getOrDefault("CAMPUS_ADMIN_PASSWORD","admin123");
+        if (!"admin".equals(request.username()) || !password.equals(request.password())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户名或密码错误");
         }
-        return new LoginResponse("demo-" + UUID.randomUUID(), "admin", "林管理员", "ADMIN", LocalDateTime.now().plusHours(8));
+        return new LoginResponse(sessions.issue(), "admin", "林管理员", "ADMIN", LocalDateTime.now().plusHours(8));
     }
 
     public record LoginRequest(@NotBlank String username, @NotBlank String password) {}

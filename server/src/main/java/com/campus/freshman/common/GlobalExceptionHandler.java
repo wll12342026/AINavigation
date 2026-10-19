@@ -5,6 +5,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -12,6 +14,12 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiError> business(ResponseStatusException exception) {
+        return ResponseEntity.status(exception.getStatusCode()).body(
+                ApiError.of("BUSINESS_ERROR", exception.getReason() == null ? "请求未能完成" : exception.getReason()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError validation(MethodArgumentNotValidException exception) {

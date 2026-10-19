@@ -5,14 +5,14 @@ import ToastHost from '@/components/common/ToastHost.vue'
 </script>
 
 <template>
-  <div class="app-shell">
+  <div class="app-shell campus-admin-theme">
     <AppSidebar />
     <main class="main-area">
       <AppTopbar />
       <section class="page-root">
         <RouterView v-slot="{ Component }">
           <Transition name="route-page" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="$route.fullPath" />
           </Transition>
         </RouterView>
       </section>

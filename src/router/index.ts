@@ -9,6 +9,7 @@ export default createRouter({
     { path: '/network', name: 'network', component: () => import('@/views/NetworkView.vue') },
     { path: '/tasks', name: 'tasks', component: () => import('@/views/TasksView.vue') },
     { path: '/knowledge', name: 'knowledge', component: () => import('@/views/KnowledgeView.vue') },
+    { path: '/agents', name: 'agents', component: () => import('@/views/AgentsView.vue') },
     { path: '/media', name: 'media', component: () => import('@/views/MediaView.vue') },
     { path: '/analytics', name: 'analytics', component: () => import('@/views/AnalyticsView.vue') },
     { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },

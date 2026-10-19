@@ -1,27 +1,92 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import CampusScene from '@/components/common/CampusScene.vue'
-import SectionTitle from '@/components/common/SectionTitle.vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import SplatViewer from '@/components/common/SplatViewer.vue'
+import { getSettings, saveSettings } from '@/services/api'
+import { normalizeModelUrl } from '@/twin/viewer'
 import { useAppStore } from '@/stores/app'
-import { placesApi, roadsApi, type Place, type RoadSegment } from '@/services/api'
+
 const store = useAppStore()
-const places = ref<Place[]>([])
-const roads = ref<RoadSegment[]>([])
-const selected = computed(() => places.value[0] ?? null)
-const poiProgress = computed(() => places.value.length ? Math.round(places.value.filter(item => item.longitude != null && item.latitude != null).length * 100 / places.value.length) : 0)
-const roadProgress = computed(() => roads.value.length ? Math.round(roads.value.filter(item => item.fromNode && item.toNode).length * 100 / roads.value.length) : 0)
+const router = useRouter()
+const form = reactive({ name: '', url: '' })
+const activeUrl = ref('')
+const activeName = ref('')
+const loading = ref(true)
+const saving = ref(false)
+const configLoaded = ref(false)
+const error = ref('')
+const modelState = ref<'empty' | 'loading' | 'ready' | 'error'>('empty')
+const savedUrl = ref('')
+const viewerRevision = ref(0)
+const statusText = computed(() => ({ empty:'等待模型', loading:'模型加载中', ready:'模型首帧已显示', error:'模型加载失败' })[modelState.value])
+
 async function load() {
-  try { [places.value, roads.value] = await Promise.all([placesApi.list(), roadsApi.list()]) }
-  catch { store.notify('孪生语义数据加载失败，请检查后端', 'warning') }
+  loading.value = true; error.value = ''
+  try {
+    const values = await getSettings()
+    form.name = values.twinModelName ?? ''
+    form.url = values.twinModelUrl ?? ''
+    savedUrl.value = form.url
+    activeUrl.value = form.url
+    activeName.value = form.name
+    configLoaded.value = true
+  } catch (reason) {
+    error.value = reason instanceof Error ? reason.message : '模型配置读取失败'
+    configLoaded.value = false
+  } finally { loading.value = false }
+}
+function validate() {
+  try { normalizeModelUrl(form.url, window.location.href); error.value = ''; return true }
+  catch (reason) { error.value = reason instanceof Error ? reason.message : '模型地址不合法'; return false }
+}
+function preview() {
+  if (!validate()) return
+  activeUrl.value = form.url.trim(); activeName.value = form.name.trim()
+  viewerRevision.value++
+}
+async function save() {
+  if (!configLoaded.value || !validate()) return
+  saving.value = true
+  try {
+    const values = await saveSettings({ twinModelName: form.name.trim(), twinModelUrl: form.url.trim() })
+    savedUrl.value = values.twinModelUrl ?? ''
+    form.url = savedUrl.value; form.name = values.twinModelName ?? ''
+    preview()
+    store.notify(form.url ? '模型地址已保存；加载是否成功以查看器状态为准' : '已保存为空模型配置')
+  } catch (reason) { error.value = reason instanceof Error ? reason.message : '模型配置保存失败' }
+  finally { saving.value = false }
 }
 onMounted(load)
 </script>
 
 <template>
-  <div>
-    <div class="page-tools"><div class="page-tools-left"><div class="segmented"><button class="active">场景编辑</button><button>模型版本</button><button>语义标注</button></div><span class="tag orange">● 真实模型未接入</span></div><div class="page-tools-right"><button class="btn" @click="store.notify('AI 场景检查已启动')">AI 场景检查</button><button class="btn primary" @click="store.notify('已打开模型上传面板')">上传孪生模型</button></div></div>
-    <div class="content-split"><CampusScene workspace :places="places" :roads="roads"/><aside class="grid"><article class="panel"><div class="panel-head"><div><h3>场景对象</h3><p>首条数据库语义对象</p></div><span :class="['tag',selected?'green':'orange']">{{ selected?'已读取':'暂无数据' }}</span></div><div v-if="selected" class="panel-pad property-list"><div class="property"><label>对象名称</label><strong>{{ selected.name }}</strong></div><div class="property"><label>对象 ID</label><span>{{ selected.id }}</span></div><div class="property"><label>经纬度</label><span>{{ selected.longitude ?? '未配置' }}, {{ selected.latitude ?? '未配置' }}</span></div><div class="property"><label>类型</label><span class="tag">{{ selected.category }}</span></div><div class="property"><label>数据状态</label><span :class="['tag',selected.longitude!=null&&selected.latitude!=null?'green':'orange']">{{ selected.longitude!=null&&selected.latitude!=null?'已配置':'等待真实坐标' }}</span></div></div><div v-else class="panel-pad metric-sub">请先在校园地点页面录入真实地点。</div></article><article class="panel panel-pad"><div class="ai-suggest"><b>数据接入说明</b><p>当前仅展示数据库语义对象；无人机模型导入前，系统不会生成虚假的模型完成度。</p></div><button class="btn primary twin-btn" @click="store.notify('请先在校园地点中补充真实坐标')">检查语义数据</button></article><article class="panel panel-pad"><SectionTitle title="接入进度" /><div class="progress-list twin-progress"><div v-for="item in [{n:'POI坐标',v:poiProgress,c:'#3479f4'},{n:'路网节点',v:roadProgress,c:'#18c79a'},{n:'3D模型',v:0,c:'#7657ed'}]" :key="item.n" class="progress-item compact"><b>{{ item.n }}</b><div class="progress-track"><i :style="{width:item.v+'%',background:item.c}" /></div><span>{{ item.v }}%</span></div></div></article></aside></div>
+  <div class="twin-page">
+    <header class="twin-heading"><div><span class="eyebrow">CAMPUS DIGITAL TWIN</span><h2>校园数字孪生</h2><p>三维场景浏览 · 校园空间数据接入</p></div><div class="heading-actions"><span :class="['tag',modelState==='ready'?'green':modelState==='error'?'red':'orange']">{{ statusText }}</span><button class="btn" @click="router.push('/network')">路线规划与验证 ↗</button></div></header>
+    <div class="twin-layout">
+      <article class="model-stage panel">
+        <div v-if="loading" class="config-loading" role="status">正在读取模型配置…</div>
+        <SplatViewer v-else :key="viewerRevision" :model-url="activeUrl" :title="activeName || '校园三维场景'" @state="modelState=$event" />
+        <footer class="scene-footer"><span><i :class="{online:modelState==='ready'}"/>{{ activeName || '未命名校园场景' }}</span><span>Gaussian Splatting · SOG</span></footer>
+      </article>
+      <aside class="twin-sidebar">
+        <section class="panel config-panel"><div class="panel-head"><div><h3>场景接入</h3><p>连接当前项目自己的模型资源</p></div><span class="tag">第一阶段</span></div>
+          <form class="config-form" @submit.prevent="save">
+            <label>场景名称<input v-model="form.name" maxlength="100" placeholder="例如：主校区航拍场景" :disabled="loading || saving"></label>
+            <label>模型访问地址<input v-model="form.url" type="text" placeholder="/models/campus.sog 或 https://…/campus.sog" :disabled="loading || saving" spellcheck="false"></label>
+            <p class="field-hint">填写浏览器可访问的地址，不填写电脑文件路径。跨域资源需开放 CORS；完整 LOD 目录可填写 lod-meta.json 地址。</p>
+            <p v-if="error" class="config-error" role="alert">{{ error }}</p>
+            <div class="config-actions"><button type="button" class="btn" :disabled="loading || saving" @click="preview">临时预览</button><button class="btn primary" :disabled="loading || saving || !configLoaded">{{ saving ? '保存中…' : '保存并加载' }}</button></div>
+            <button type="button" class="reload-config" :disabled="loading || saving" @click="load">重新读取已保存配置</button>
+            <small v-if="activeUrl && activeUrl!==savedUrl" class="preview-note">正在临时预览，地址尚未保存。</small>
+          </form>
+        </section>
+        <section class="panel information-panel"><h3>模型准备指引</h3><ol><li>准备本校已训练或导出的真实 SOG 文件。</li><li>将文件放入本项目 public/models 目录，或交由文件服务提供 HTTP 地址。</li><li>填写地址并预览，首帧显示后可旋转、缩放、平移和全屏浏览。</li></ol><p>目前未提供上传或 PLY 转换；普通点云、GLB、OBJ、FBX 不能作为此查看器的模型输入。模型不会随代码提交。</p></section>
+        <section class="panel next-panel"><span class="tag">下一步 · 坐标校准</span><h3>让校园地点与三维场景对应</h3><p>模型到位后标定地点、建筑入口和路网坐标，再验证三维路线叠加与镜头跟随。</p><button class="btn" @click="router.push('/places')">维护校园地点 →</button></section>
+      </aside>
+    </div>
   </div>
 </template>
 
-<style scoped>.twin-btn{width:100%;margin-top:12px}.twin-progress{margin-top:15px}.progress-item.compact{grid-template-columns:90px 1fr 38px}</style>
+<style scoped>
+.twin-page{max-width:1920px;margin:auto}.twin-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}.eyebrow{font-size:10px;letter-spacing:2px;color:#598bc9}.twin-heading h2{margin:7px 0;color:#1b395f;font-size:25px}.twin-heading p{margin:0;font-size:12px;color:#8295ae}.heading-actions{display:flex;align-items:center;gap:12px}.twin-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px}.model-stage{height:calc(100vh - 218px);min-height:600px;padding:8px;display:flex;flex-direction:column;overflow:hidden;background:#f9fcff}.model-stage :deep(.splat-viewer){flex:1;min-height:0}.model-stage :deep(iframe){height:100%;min-height:0}.scene-footer{padding:14px 10px 6px;display:flex;justify-content:space-between;gap:12px;color:#8b9db3;font-size:11px}.scene-footer i{display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#c6d1df}.scene-footer i.online{background:#13c99d}.twin-sidebar{display:flex;flex-direction:column;gap:16px}.config-form{padding:20px;display:grid;gap:16px}.config-form label{display:grid;gap:9px;font-size:12px;color:#476484}.config-form input{width:100%;box-sizing:border-box;border:1px solid #dce7f4;background:#f8fbff;border-radius:9px;padding:12px;color:#234b7a;font-size:12px;outline:none}.config-form input:focus{border-color:#619df5;box-shadow:0 0 0 3px #3787f410}.field-hint{margin:0;color:#8b9db4;font-size:11px;line-height:1.9}.config-actions{display:flex;gap:10px}.config-actions>*{flex:1}.config-error{margin:0;padding:10px;background:#fff1ef;border-radius:8px;color:#c56055;font-size:12px;line-height:1.7}.reload-config{padding:0;border:0;background:none;text-align:left;color:#5485c5;font-size:11px;cursor:pointer}.information-panel,.next-panel{padding:21px}.information-panel h3,.next-panel h3{margin:0 0 12px;color:#2b4b73;font-size:14px}.information-panel ol{padding-left:18px;margin:0;display:grid;gap:12px;color:#6d829c;font-size:12px;line-height:1.8}.information-panel p,.next-panel p{color:#8a9cb2;font-size:11px;line-height:1.9}.next-panel{background:linear-gradient(135deg,#eff6ff,#fbfdff)}.next-panel h3{margin-top:13px}.next-panel .btn{margin-top:8px}.config-loading{flex:1;display:grid;place-items:center;color:#8097b3}.preview-note{color:#bd8b42;line-height:1.7}@media(max-width:1150px){.twin-layout{grid-template-columns:1fr}.model-stage{height:65vh;min-height:450px}.twin-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.config-panel{grid-row:span 2}.twin-heading{flex-wrap:wrap}}@media(max-width:700px){.twin-sidebar{display:flex}.heading-actions{flex-wrap:wrap}.scene-footer{flex-wrap:wrap}}
+</style>

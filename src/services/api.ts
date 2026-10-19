@@ -37,6 +37,35 @@ export interface AiAnalysis {
   confidence: number
   reasoningSteps: string[]
   affectedObjects: string[]
+  mode?: string
+  sources?: { id: number; title: string; content: string; source?: string; updatedAt?: string; expiresAt?: string }[]
+  route?: RoutePlan
+}
+
+export interface RouteStep {
+  roadId: number
+  roadName: string
+  fromNode: string
+  toNode: string
+  lengthMeters: number
+  status: string
+  accessible: boolean
+  restrictionReason?: string
+}
+
+export interface RoutePlan {
+  origin: string
+  destination: string
+  distanceMeters: number
+  estimatedMinutes: number
+  accessibleOnly: boolean
+  avoidRestricted: boolean
+  strategy: string
+  confidence: number
+  steps: RouteStep[]
+  evidence: string[]
+  blockedRoads: string[]
+  optimization?: 'DISTANCE' | 'TIME'
 }
 
 export interface BaseRecord {
@@ -55,6 +84,8 @@ export interface Place extends BaseRecord {
   latitude: number | null
   entranceHint: string
   description: string
+  aliases?: string
+  openingHours?: string
 }
 
 export interface RoadSegment extends BaseRecord {
@@ -65,6 +96,8 @@ export interface RoadSegment extends BaseRecord {
   status: string
   restrictionReason: string | null
   accessible: boolean
+  bidirectional?: boolean
+  travelSeconds?: number | null
 }
 
 export interface StudentTask extends BaseRecord {
@@ -97,6 +130,22 @@ export interface MediaAsset extends BaseRecord {
   qualityScore: number | null
   reviewStatus: string
   issueType: string | null
+  fileName?: string
+  fileSize?: number
+  imageWidth?: number
+  imageHeight?: number
+  fileHash?: string
+  visualFingerprint?: string
+  brightnessScore?: number
+  sharpnessScore?: number
+  inspectionEvidence?: string
+}
+
+export interface RecognitionResult {
+  sufficientEvidence: boolean
+  message: string
+  method: string
+  candidates: { placeId: number; placeName: string; referenceUrl: string; confidence: number; evidence: string }[]
 }
 
 export interface MediaSummary {
@@ -128,8 +177,21 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     ...options,
   })
-  if (!response.ok) throw new Error(`接口请求失败：${response.status}`)
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null)
+    const details = payload?.details ? Object.values(payload.details).join('；') : ''
+    throw new Error(details || payload?.message || `接口请求失败：${response.status}`)
+  }
   if (response.status === 204) return undefined as T
+  return response.json() as Promise<T>
+}
+
+async function multipart<T>(url: string, form: FormData): Promise<T> {
+  const response = await fetch(url, { method: 'POST', body: form })
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null)
+    throw new Error(payload?.message || `接口请求失败：${response.status}`)
+  }
   return response.json() as Promise<T>
 }
 
@@ -141,6 +203,20 @@ export function analyzeOperation(prompt: string) {
   return request<AiAnalysis>('/api/ai/analyze', {
     method: 'POST',
     body: JSON.stringify({ prompt }),
+  })
+}
+
+export function planRoute(origin: string, destination: string, accessibleOnly = false, avoidRestricted = true, optimization = 'DISTANCE') {
+  return request<RoutePlan>('/api/navigation/plan', {
+    method: 'POST',
+    body: JSON.stringify({ origin, destination, accessibleOnly, avoidRestricted, optimization }),
+  })
+}
+
+export function planRouteFromPrompt(prompt: string, origin?: string) {
+  return request<RoutePlan>('/api/navigation/ai-plan', {
+    method: 'POST',
+    body: JSON.stringify({ prompt, origin }),
   })
 }
 
@@ -174,3 +250,18 @@ export const roadsApi = crud<RoadSegment>('/api/roads')
 export const tasksApi = crud<StudentTask>('/api/tasks')
 export const knowledgeApi = crud<KnowledgeItem>('/api/knowledge')
 export const mediaApi = crud<MediaAsset>('/api/media')
+
+export function uploadMedia(file: File, title: string, placeId: number | null, type = 'PHOTO') {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('title', title)
+  form.append('type', type)
+  if (placeId != null) form.append('placeId', String(placeId))
+  return multipart<MediaAsset>('/api/media/upload', form)
+}
+
+export function recognizeLandmark(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return multipart<RecognitionResult>('/api/media/recognize', form)
+}
